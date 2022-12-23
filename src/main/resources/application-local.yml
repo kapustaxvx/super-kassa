@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:6664/sk_example_db
+    driver-class-name: org.postgresql.Driver
+    username: sk_example_user
+    password: admin
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+  sql:
+    init:
+      mode: always
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
