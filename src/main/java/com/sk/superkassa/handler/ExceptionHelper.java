@@ -3,6 +3,7 @@ package com.sk.superkassa.handler;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.sk.superkassa.exception.NoSuchElementException;
 import com.sk.superkassa.model.dto.ExceptionMessageResponse;
+import org.hibernate.StaleStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +19,20 @@ public class ExceptionHelper {
 
     private final static Logger logger = LoggerFactory.getLogger(ExceptionHandler.class);
 
-    @ExceptionHandler(value = { NoSuchElementException.class })
+    @ExceptionHandler(value = { NoSuchElementException.class})
     public ResponseEntity<ExceptionMessageResponse> handleNoSuchElementException(RuntimeException ex) {
 
         logger.error("No Such Element Exception: {}", ex.getMessage());
 
         return new ResponseEntity<>(new ExceptionMessageResponse("failed",ex.getMessage(),
+                LocalDateTime.now()), I_AM_A_TEAPOT);
+    }
+    @ExceptionHandler(value = { StaleStateException.class})
+    public ResponseEntity<ExceptionMessageResponse> handleStaleStateException(RuntimeException ex) {
+
+        logger.error("StaleStateException: {}", ex.getMessage());
+
+        return new ResponseEntity<>(new ExceptionMessageResponse("failed", "Ошибка версионирования в БД",
                 LocalDateTime.now()), I_AM_A_TEAPOT);
     }
 

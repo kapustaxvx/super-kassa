@@ -2,10 +2,11 @@ package com.sk.superkassa.model.entity;
 
 import com.sk.superkassa.model.dto.Value;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "sk_example_table")
@@ -20,13 +21,16 @@ public class Element {
     @Type(type = "jsonb")
     @Column(name = "obj", columnDefinition = "jsonb")
     private Value value;
+    @Version
+    @Column(name = "version", nullable = false)
+    private Integer version;
 
     public Element() {
     }
 
-    public Element(Long id, Value value) {
-        this.id = id;
+    public Element(Value value, Integer version) {
         this.value = value;
+        this.version = version;
     }
 
     public Long getId() {
@@ -43,5 +47,13 @@ public class Element {
 
     public void setValue(Value value) {
         this.value = value;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

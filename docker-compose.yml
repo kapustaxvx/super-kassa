@@ -27,6 +27,8 @@ services:
       database:
         condition: service_healthy
     restart: always
+    deploy:
+      replicas: 3
 
   nginx:
     image: nginx:latest

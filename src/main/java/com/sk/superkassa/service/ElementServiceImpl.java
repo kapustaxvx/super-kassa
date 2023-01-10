@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -30,18 +31,33 @@ public class ElementServiceImpl implements ElementService {
     }
 
     @Override
+    @Transactional
     public Value modifyValue(ModifyRequest request) {
         try (final AutoCloseableReentrantLock lock = locksProvider.provideModifyLock(request.getId()).open()){
             logger.info("Modify request: id = {}, add = {}", request.getId(), request.getAdd());
-            Optional<Element> element = elementRepository.findById(request.getId());
-            if (element.isEmpty()) {
+            Optional<Element> elementOpt = elementRepository.findById(request.getId());
+            if (elementOpt.isEmpty()) {
                 logger.error("There is no element with id: {}", request.getId());
                 throw new NoSuchElementException("There is no element with id: " + request.getId());
             }
-            AtomicLong current = element.get().getValue().getCurrent();
+            if (sleep) {
+                logger.info("Спим 5 секунд");
+                sleep = false;
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                logger.info("Не спим");
+                sleep = true;
+            }
+            Element element = elementOpt.get();
+            AtomicLong current = elementOpt.get().getValue().getCurrent();
             current.addAndGet(request.getAdd());
+            element.setValue(new Value(current));
             Element elementToUpdate = elementRepository
-                    .save(new Element(request.getId(), new Value(current)));
+                    .save(element);
             logger.info("Element [{}] updated: current value = {}",
                     request.getId(), elementToUpdate.getValue().getCurrent());
             return elementToUpdate.getValue();
